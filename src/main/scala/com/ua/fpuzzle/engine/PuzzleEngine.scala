@@ -1,12 +1,11 @@
 package com.ua.fpuzzle.engine
 
-import com.ua.fpuzzle.domain.BoardGenerator
+import com.ua.fpuzzle.domain.{Board, BoardGenerator}
 import com.ua.fpuzzle.view.{BoardView, InputReader}
 
 case class PuzzleEngine(boardView: BoardView, inputReader: InputReader) {
 
-  def play(): Unit = {
-    val board = BoardGenerator.randomBoard()
+  def play(board: Board = BoardGenerator.randomBoard()): Unit = {
     while (!board.isPuzzleSolved) {
       boardView.renderStatus(board)
       boardView.renderAvailableMoves(board)

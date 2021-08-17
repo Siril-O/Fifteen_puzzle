@@ -8,7 +8,6 @@ object Start {
   def main(args: Array[String]): Unit = {
     println("Welcome to puzzle game.")
     PuzzleEngine(ConsoleBoardView, ConsoleInputReader).play()
-    println("Welcome you won. See you next time")
-
+    println("Congrats you won. See you next time")
   }
 }

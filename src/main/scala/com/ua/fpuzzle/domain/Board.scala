@@ -5,17 +5,21 @@ import com.ua.fpuzzle.domain.Coord.isInRange
 
 import scala.collection.mutable.{Seq => MSeq}
 
+/**
+ * @param tiles
+ * not thread-safe
+ */
 class Board(private val tiles: MSeq[MSeq[Tile]]) {
 
   require(tiles.size == Rows, s"Wrong amount of rows required 4 got ${tiles.size}")
   require(tiles.forall(_.size == TilesPerRow), s"Wrong amount of tiles in a row required 4 got ${tiles.size}")
-  require(traverseMap((_, tile) => tile.value.isEmpty).count(identity) == 1, s"Only Singe tile should be empty")
+  require(traverseMap((_, tile) => tile.isEmpty).count(identity) == 1, s"Only Singe tile should be empty")
 
   def getTiles: Seq[Seq[Tile]] = tiles.map(_.toSeq).toSeq
 
   def moveToEmpty(value: Int): Unit = {
     require(value > 0 && value <= maxTileValue, s"Tile number exceeds available ranges $maxTileValue")
-    val current = traverseMap[(Coord, Tile)]((c, t) => c -> t).find(_._2.value.exists(_ == value)).map(_._1).get
+    val current = traverseMap[(Coord, Tile)]((c, t) => c -> t).find(_._2.exists(_ == value)).map(_._1).get
     moveToEmpty(current)
   }
 
@@ -24,10 +28,10 @@ class Board(private val tiles: MSeq[MSeq[Tile]]) {
     val empty = emptyTile
     val currentNumber = tiles(current.x)(current.y)
     tiles(empty.x)(empty.y) = currentNumber
-    tiles(current.x)(current.y) = Tile(None)
+    tiles(current.x)(current.y) = None
   }
 
-  def emptyTile: Coord = traverseMap((c, tile) => c -> tile.value.isEmpty).find(_._2).head._1
+  def emptyTile: Coord = traverseMap((c, tile) => c -> tile.isEmpty).find(_._2).head._1
 
   private def availableTilesToMove: Seq[Coord] = {
     Seq(
@@ -36,9 +40,8 @@ class Board(private val tiles: MSeq[MSeq[Tile]]) {
     ).filter(isInRange).map(Coord(_))
   }
 
-  def getAvailableTilesToMove: Seq[Int] = {
-    availableTilesToMove.flatMap(c => tiles(c.x)(c.y).value)
-  }
+  def getAvailableTilesToMove: Seq[Int] =
+    availableTilesToMove.flatMap(c => tiles(c.x)(c.y))
 
   private def traverseMap[T](f: (Coord, Tile) => T): Iterator[T] =
     for {
@@ -51,9 +54,9 @@ class Board(private val tiles: MSeq[MSeq[Tile]]) {
 
     traverseMap((coord, tile) =>
       if (isLast(coord))
-        tile.value.isEmpty
+        tile.isEmpty
       else
-        tile.value.contains(expectedTileValue(coord))
+        tile.contains(expectedTileValue(coord))
     )
       .forall(identity)
   }
@@ -64,6 +67,9 @@ class Board(private val tiles: MSeq[MSeq[Tile]]) {
 }
 
 object Board {
+
+  type Tile = Option[Int]
+
   val Rows = 4
   val TilesPerRow = 4
   private val maxTileValue = Rows * TilesPerRow - 1

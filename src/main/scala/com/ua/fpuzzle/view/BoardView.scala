@@ -3,10 +3,10 @@ package com.ua.fpuzzle.view
 import com.ua.fpuzzle.domain.Board
 
 trait BoardView {
-  type T
+  type OUTPUT
 
-  def renderStatus(board: Board): T
+  def renderStatus(board: Board): OUTPUT
 
-  def renderAvailableMoves(board: Board): T
+  def renderAvailableMoves(board: Board): OUTPUT
 
 }

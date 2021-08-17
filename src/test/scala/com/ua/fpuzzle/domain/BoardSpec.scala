@@ -1,25 +1,68 @@
 package com.ua.fpuzzle.domain
 
-import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatest.matchers.should.Matchers._
-
-import scala.util.Random
+import org.scalatest.wordspec.AnyWordSpecLike
 
 class BoardSpec extends AnyWordSpecLike {
 
   "Board" should {
+    val solvedTiles = (0 to 3)
+      .map(row =>
+        (0 to 3).map(column => if (row == 3 && column == 3) None else Some(row * 4 + column + 1))
+      )
     "confirm puzzle solved" in {
-      val tiles = (0 to 3)
-        .map(row =>
-          (0 to 3).map(column => Tile(if (row == 3 && column == 3) None else Some(row * 4 + column + 1)))
-        )
-      println(tiles.map(_.mkString(",")).mkString("\n"))
-      Board(tiles).isPuzzleSolved shouldEqual true
+      val board = Board(solvedTiles)
+      board.isPuzzleSolved shouldEqual true
+      board.moveToEmpty(15)
+      board.isPuzzleSolved shouldEqual false
     }
 
-    "bla"in {
-      val t = BoardGenerator.randomBoard(Random).getTiles
-      println(t.map(_.mkString(",")).mkString("\n"))
+    "move tiles" in {
+      val board = Board(solvedTiles)
+      board.moveToEmpty(15)
+
+      board.getTiles shouldEqual Seq(
+        Seq(Some(1), Some(2), Some(3), Some(4)),
+        Seq(Some(5), Some(6), Some(7), Some(8)),
+        Seq(Some(9), Some(10), Some(11), Some(12)),
+        Seq(Some(13), Some(14), None, Some(15))
+      )
+      board.moveToEmpty(11)
+      board.getTiles shouldEqual Seq(
+        Seq(Some(1), Some(2), Some(3), Some(4)),
+        Seq(Some(5), Some(6), Some(7), Some(8)),
+        Seq(Some(9), Some(10), None, Some(12)),
+        Seq(Some(13), Some(14), Some(11), Some(15))
+      )
+      board.moveToEmpty(7)
+      board.getTiles shouldEqual Seq(
+        Seq(Some(1), Some(2), Some(3), Some(4)),
+        Seq(Some(5), Some(6), None, Some(8)),
+        Seq(Some(9), Some(10), Some(7), Some(12)),
+        Seq(Some(13), Some(14), Some(11), Some(15))
+      )
+      board.moveToEmpty(3)
+      board.getTiles shouldEqual Seq(
+        Seq(Some(1), Some(2), None, Some(4)),
+        Seq(Some(5), Some(6), Some(3), Some(8)),
+        Seq(Some(9), Some(10), Some(7), Some(12)),
+        Seq(Some(13), Some(14), Some(11), Some(15))
+      )
+      board.moveToEmpty(2)
+      board.getTiles shouldEqual Seq(
+        Seq(Some(1), None, Some(2), Some(4)),
+        Seq(Some(5), Some(6), Some(3), Some(8)),
+        Seq(Some(9), Some(10), Some(7), Some(12)),
+        Seq(Some(13), Some(14), Some(11), Some(15))
+      )
+      board.moveToEmpty(1)
+      board.getTiles shouldEqual Seq(
+        Seq(None, Some(1), Some(2), Some(4)),
+        Seq(Some(5), Some(6), Some(3), Some(8)),
+        Seq(Some(9), Some(10), Some(7), Some(12)),
+        Seq(Some(13), Some(14), Some(11), Some(15))
+      )
+      board.emptyTile shouldEqual Coord(0, 0)
     }
   }
 }
